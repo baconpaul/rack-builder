@@ -1,0 +1,73 @@
+diff --git a/Info.plist b/Info.plist
+index 461652b4..a087286c 100644
+--- a/Info.plist
++++ b/Info.plist
+@@ -6,7 +6,7 @@
+ 	<key>CFBundleDevelopmentRegion</key><string>English</string>
+ 	<key>CFBundleName</key><string>VCV Rack 2 Free</string>
+ 	<key>CFBundleDisplayName</key><string>VCV Rack 2 Free</string>
+-	<key>CFBundleIdentifier</key><string>com.vcvrack.rack</string>
++	<key>CFBundleIdentifier</key><string>com.vcvrack.rack-arm</string>
+ 	<key>CFBundleVersion</key><string>{VERSION}</string>
+ 	<key>CFBundlePackageType</key><string>APPL</string>
+ 	<key>CFBundleSignature</key><string>RACK</string>
+diff --git a/Makefile b/Makefile
+index e1be07d1..f6b2d527 100644
+--- a/Makefile
++++ b/Makefile
+@@ -146,7 +146,7 @@ DIST_NAME := RackFree-$(VERSION)-$(ARCH_NAME)
+ DIST_SDK_DIR := Rack-SDK
+ DIST_SDK := Rack-SDK-$(VERSION)-$(ARCH_NAME).zip
+ ifdef ARCH_MAC
+-	DIST_BUNDLE := VCV Rack $(VERSION_MAJOR) Free.app
++	DIST_BUNDLE := VCV Rack $(VERSION_MAJOR) Arm Modified.app
+ else
+ 	DIST_DIR := Rack$(VERSION_MAJOR)Free
+ endif
+@@ -196,16 +196,16 @@ ifdef ARCH_MAC
+ 	cp plugins/Fundamental/dist/Fundamental-*.vcvplugin dist/"$(DIST_BUNDLE)"/Contents/Resources/Fundamental.vcvplugin
+ 	# Clean up and sign bundle
+ 	xattr -cr dist/"$(DIST_BUNDLE)"
+-	codesign --verbose --sign "Developer ID Application: Andrew Belt (VRF26934X5)" --options runtime --entitlements Entitlements.plist --timestamp --deep dist/"$(DIST_BUNDLE)"/Contents/Resources/$(TARGET) dist/"$(DIST_BUNDLE)"
++	codesign --verbose --sign - --options runtime --entitlements Entitlements.plist --timestamp --deep dist/"$(DIST_BUNDLE)"/Contents/Resources/$(TARGET) dist/"$(DIST_BUNDLE)"
+ 	codesign --verify --deep --strict --verbose=2 dist/"$(DIST_BUNDLE)"
+ 	# Make standalone PKG
+-	mkdir -p dist/Component
+-	cp -R dist/"$(DIST_BUNDLE)" dist/Component/
+-	pkgbuild --identifier com.vcvrack.rack --component-plist Component.plist --root dist/Component --install-location /Applications dist/Component.pkg
++	#mkdir -p dist/Component
++	#cp -R dist/"$(DIST_BUNDLE)" dist/Component/
++	#pkgbuild --identifier com.vcvrack.rack --component-plist Component.plist --root dist/Component --install-location /Applications dist/Component.pkg
+ 	# Make PKG
+-	productbuild --distribution Distribution.xml --package-path dist dist/"$(DIST_NAME)".pkg
+-	productsign --sign "Developer ID Installer: Andrew Belt (V8SW9J626X)" dist/"$(DIST_NAME)".pkg dist/"$(DIST_NAME)"-signed.pkg
+-	mv dist/"$(DIST_NAME)"-signed.pkg dist/"$(DIST_NAME)".pkg
++	#productbuild --distribution Distribution.xml --package-path dist dist/"$(DIST_NAME)".pkg
++	#productsign --sign "Developer ID Installer: Andrew Belt (V8SW9J626X)" dist/"$(DIST_NAME)".pkg dist/"$(DIST_NAME)"-signed.pkg
++	#mv dist/"$(DIST_NAME)"-signed.pkg dist/"$(DIST_NAME)".pkg
+ endif
+ ifdef ARCH_WIN
+ 	mkdir -p dist/"$(DIST_DIR)"
+diff --git a/compile.mk b/compile.mk
+index b72fd683..9d4d4fe8 100644
+--- a/compile.mk
++++ b/compile.mk
+@@ -102,4 +102,4 @@ ifdef ARCH_MAC
+ endif
+ 
+ build/%.html: %.md
+-	markdown $< > $@
++	echo $< > $@
+diff --git a/src/plugin.cpp b/src/plugin.cpp
+index 0b969f88..5823df90 100644
+--- a/src/plugin.cpp
++++ b/src/plugin.cpp
+@@ -251,7 +251,7 @@ void init() {
+ 	// Load Core
+ 	loadPlugin("");
+ 
+-	pluginsPath = asset::user("plugins");
++	pluginsPath = asset::user("plugins_arm64");
+ 
+ 	// Get user plugins directory
+ 	system::createDirectory(pluginsPath);
